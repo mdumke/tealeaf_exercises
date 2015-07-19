@@ -1,0 +1,5 @@
+task default: [:test]
+
+task :test do
+  ruby "01_the_basics/tests/exercise_03_spec.rb"
+end
