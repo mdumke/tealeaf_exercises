@@ -22,4 +22,6 @@ tealeaf academy
 4. @instance_var
 5. local_var
 
-
+## Control Flow
+- the case-statement can be used without an argument! Just `case` and then provide a number of conditionals in the `when`-clauses and the first matching option will be taken
+- there are only two falsy values in Ruby: nil and false
