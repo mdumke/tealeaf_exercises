@@ -37,3 +37,21 @@ tealeaf academy
 - some useful array-methods would be `indlude?`, `sort`, `each_index`, `each_with_index`, `flatten`
 - it might be a good idea to double-check whether or not an array-method is destructive
 - to transform a range into an array, use e.g. `Array(1..3)`
+
+## Hashes
+- hashes have helpful iterator-methods, e.g. each_key, each_value, keys, values, each
+- merge hashes with merge or merge!
+
+## Files
+- create a new file using the File-object: `file = File.new('test.txt', 'w+')
+- or open the file with `file = File.open(...)`
+- make it a habit close files: `file.close`
+- some common modes are: `r` (read only), `w` (write only), `w+` (read and over-write), `a+` (read and append)
+- read-mode is default, so we do not have to specify this
+- to read from a file, simply use `File.read('filename')` to get the complete content as a string or `File.readlines('filename')` to have each line as an array-element
+- to write to a file, use `file.write` or `file.puts` which puts a newline-character at the end
+- a file is a stream, just like `$stdout` or `$stderr`, so we can simply write or put(s) to it
+- No need to call `file.close` when working with blocks like `File.open('filename', 'w') {|f| f.write('<=>')}`
+- Delete files with `File.delete('filename')
+
+
