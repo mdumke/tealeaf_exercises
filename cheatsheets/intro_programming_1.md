@@ -67,6 +67,12 @@ tealeaf academy
 3. json: Ruby standard library
 4. xml: Nokigiri-library
 
+## More Stuff
+- a simple regexp-match can be checked with `"str" =~ /epx/`
+- a MatchData object is returned when using the match-method, this object has all relevant data stored, e.g.
+- `/(\w{2})-(\w{3})/.match("abc-def").captures` will show a list of the captured groups and subgroups
+- methods can take blocks as arguments, just note that 1) the block must come last, and 2) the name has to start with an &
+- procs can be defines by instantiating the Proc-object: `say = Proc.new { |x, y, z| puts x }` and executed via `say.call('A', 'B', 'C')`
 
 
 
