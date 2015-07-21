@@ -53,5 +53,20 @@ tealeaf academy
 - a file is a stream, just like `$stdout` or `$stderr`, so we can simply write or put(s) to it
 - No need to call `file.close` when working with blocks like `File.open('filename', 'w') {|f| f.write('<=>')}`
 - Delete files with `File.delete('filename')
+- opening a file in mode 'w' or 'w+' will truncate an existing file to zero
+- use the Dir-class to inspect and manipulate directories, e.g.
+- `Dir.entries('.')` lists the contents of the current directory
+- `Dir.foreach('.') do |f| ...` is an iterator over all entries in the directory
+- `Dir.getwd` returns the absolute path to the current working directory
+- `Dir.chdir('path')` changes the directory
+- `Dir.mkdir('name')` and `Dir.rmdir('name')` can be used to create and delete directories
+- the Pathname-class can help with manipulating file paths, use as in `pn = Pathname.new(fileobj_or_path_as_str)`
+- Some file classes and helpful ruby classes would be:
+1. csv: use CSV-class
+2. xls: use axslx-library
+3. json: Ruby standard library
+4. xml: Nokigiri-library
+
+
 
 
