@@ -74,5 +74,10 @@ tealeaf academy
 - methods can take blocks as arguments, just note that 1) the block must come last, and 2) the name has to start with an &
 - procs can be defines by instantiating the Proc-object: `say = Proc.new { |x, y, z| puts x }` and executed via `say.call('A', 'B', 'C')`
 
+## Workbook
+- the String-class has a helpful `prepend`-method
+- `Kernel.eval("p 'Some test'")` evaluates the string as if it were an actual method call
+- `{ a: 1, b: 2}.assoc(:b)` returns the corresponding key-value-pair as an array
+
 
 
