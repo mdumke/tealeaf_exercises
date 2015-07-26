@@ -77,7 +77,11 @@ tealeaf academy
 ## Workbook
 - the String-class has a helpful `prepend`-method
 - `Kernel.eval("p 'Some test'")` evaluates the string as if it were an actual method call
-- `{ a: 1, b: 2}.assoc(:b)` returns the corresponding key-value-pair as an array
+- `{ a: 1, b: 2 }.assoc(:b)` returns the corresponding key-value-pair as an array
+- the Hash-class has methods #member?, #include? and #key? to check for the existence of a certain key
+- note that #downcase is not destructive
+- Hash#merge! is equivalent to Hash#update
+
 
 
 
