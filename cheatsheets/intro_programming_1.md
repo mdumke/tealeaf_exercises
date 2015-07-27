@@ -81,7 +81,9 @@ tealeaf academy
 - the Hash-class has methods #member?, #include? and #key? to check for the existence of a certain key
 - note that #downcase is not destructive
 - Hash#merge! is equivalent to Hash#update
-
-
+- when declaring arrays of strings `%w(s1, s2)` and `%w[s1, s2]` are equivalent
+- the set operation `[1, 2, 2] | [3]` will produce an array with unique elements
+- the String#scan-method returns an array of all occurrences that meet a regexp-condition the given string, e.g. `'abc'.scan(/[ab]/)`
+- lambda expressions can be used in case statements like `case age; when lambda { |age| age > 65 }`
 
 
