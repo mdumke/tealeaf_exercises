@@ -1,5 +1,3 @@
-# coding: utf-8
-
 # importing a json-file
 require('json')
 

@@ -1,5 +1,3 @@
-# coding: utf-8
-
 # exercise 6: checking for anagrams
 
 words =  [

@@ -1,5 +1,3 @@
-# coding: utf-8
-
 # exercise 3: checking a number
 
 print "Hey, why don't you input an interger here: "

@@ -1,6 +1,4 @@
-# coding: utf-8
-
-# exercise 1: using select on hashes 
+# exercise 1: using select on hashes
 family = {
   uncles:   ["bob", "joe", "steve"],
   sisters:  ["jane", "jill", "beth"],

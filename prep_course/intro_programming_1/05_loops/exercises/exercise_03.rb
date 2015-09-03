@@ -1,5 +1,3 @@
-# coding: utf-8
-
 # exercise 3: each_with_index
 some_array = ['Bohnen', 'Farben', 'Bauernhof', 'Taschentuch', 'Nasenhaare']
 

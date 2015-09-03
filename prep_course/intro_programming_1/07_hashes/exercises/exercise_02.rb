@@ -1,5 +1,3 @@
-# coding: utf-8
-
 # exercise 2: merge vs merge!
 hash1 = {a: 1}
 hash2 = {b: 2}

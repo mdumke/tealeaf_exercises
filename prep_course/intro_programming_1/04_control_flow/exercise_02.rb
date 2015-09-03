@@ -1,5 +1,3 @@
-# coding: utf-8
-
 # exercise 2: upcasing-method
 
 def upcase_long_string str

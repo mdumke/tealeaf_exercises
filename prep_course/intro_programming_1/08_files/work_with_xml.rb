@@ -1,5 +1,3 @@
-# coding: utf-8
-
 # importing XML-files using Nokogiri
 require 'nokogiri'
 

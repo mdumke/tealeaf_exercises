@@ -1,5 +1,3 @@
-# coding: utf-8
-
 # exercise 3: hash-looping
 capitals = {
   france:       'Paris',
@@ -22,7 +20,7 @@ puts "Some capitals would be #{capitals.values}."
 
 puts "\nSo, to put everything together:"
 
-capitals.each do |country, capital| 
+capitals.each do |country, capital|
   puts "- #{capital} is the capital of #{country_symbol_to_string(country)}."
 end
 

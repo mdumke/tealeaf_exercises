@@ -1,5 +1,3 @@
-# coding: utf-8
-
 # exercise 3: storing movies in a hash and accessing their dates
 
 movies = {

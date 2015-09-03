@@ -1,5 +1,3 @@
-# coding: utf-8
-
 # exercise 5: checking hash-content
 animals = {
   friendly: 'turtle',

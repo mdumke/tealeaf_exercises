@@ -1,5 +1,3 @@
-# coding: utf-8
-
 # exercise 4: counting down to zero
 def count_down_from(counter)
   # base cases
@@ -11,7 +9,7 @@ def count_down_from(counter)
   # recursive step
   else
     puts counter
-    
+
     sleep 1
 
     count_down_from(counter - 1)

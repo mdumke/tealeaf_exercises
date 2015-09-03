@@ -1,5 +1,3 @@
-# coding: utf-8
-
 # exercise 7: mapping
 original_arr = [1, 2, 3, 4]
 

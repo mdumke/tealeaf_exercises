@@ -1,5 +1,3 @@
-# coding: utf-8
-
 # exercise 6: square of three floats
 
 puts 12.7 * 12.7

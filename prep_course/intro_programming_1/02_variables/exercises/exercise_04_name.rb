@@ -1,5 +1,3 @@
-# coding: utf-8
-
 # exercise 4: concatenating first name and last name
 puts "Please fill out our form"
 
