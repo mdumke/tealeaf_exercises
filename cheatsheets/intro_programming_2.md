@@ -19,3 +19,8 @@ tealeaf academy
 - do not reference instance variables directly within an instance, it is better to go with accessor methods (`attr_accessor :name, :age`, `attr_reader :mind`, `attr_writer :mood`)
 - accessor-methods will be provided in the form of `#name` and `#name=` (for which `#name =` is syntactic sugar)
 - in order to disambiguate calls to setters from variable declarations, use self, as in `self.mood = "happy"`
+
+## Workbook II
+- the instance-method `#instance_variables` returns a list of all instance variables of an object
+- there is a method `#instance_variable_get("@some_var")` that returns the instance variable even if there is no getter present
+- calling `.ancestors` on a class will display the lookup chain
