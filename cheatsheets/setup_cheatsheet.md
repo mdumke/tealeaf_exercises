@@ -1,5 +1,10 @@
 # Setup cheatsheet
 
+## using vim to write .md files
+- by default, vim uses markdown-highlighting only for .markdown extensions, so use
+- `:set syntax=markdown` for temporary fixing or add this to .vimrc:
+- `au BufNewFile,BufFilePre,BufRead *.md set filetype=markdown`
+
 ## How to solve the fish / tmux - issues
 - tipp: when changing /etc/tmux.conf, make sure all tmux-processes have stopped before you start another session, otherwise you might not see the changes
 - create ~/.config/fish/config.fish if it does not exist and from here, source the rvm-scripts like so:
