@@ -15,7 +15,7 @@ class Fixnum
   end
 
   def tens
-    ([''] + %w(X XX XX XL L LX LXX LXXX CX))[self % 100 / 10]
+    ([''] + %w(X XX XX XL L LX LXX LXXX XC))[self % 100 / 10]
   end
 
   def ones
