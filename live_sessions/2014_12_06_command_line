@@ -1,0 +1,37 @@
+#! /home/tias/.rvm/rubies/ruby-2.1.5/bin/ruby
+
+require 'yaml'
+
+CONFIG_DIR = '.command_line'
+CONFIG_FILE = 'config'
+
+def exit_with
+  yield if block_given?
+  exit
+end
+
+def config_dir
+  CONFIG_DIR
+end
+
+def config_file
+  config_dir + File::SEPARATOR + CONFIG_FILE
+end
+
+unless Dir.exists?(config_dir)
+  exit_with { puts "Error: unable to find directory '#{CONFIG_DIR}'" }
+end
+
+unless File.exists?(config_file)
+  exit_with do
+    puts "Error: unable to find #{CONFIG_DIR}#{File::SEPARATOR}#{CONFIG_FILE}"
+  end
+end
+
+config = YAML.load_file(config_file)
+
+unless config && config['name']
+  exit_with { puts "Error: config file does not specify a name." }
+end
+
+puts "Hello #{config['name']}!"
