@@ -1,7 +1,7 @@
 require 'pry'
 
 class OCR
-  DIGITS = {
+  DIGIT_PATTERNS = {
     ' _ | ||_|' => '0',
     '     |  |' => '1',
     ' _  _||_ ' => '2',
@@ -18,27 +18,36 @@ class OCR
     @text = text
   end
 
+  # returns a string of digits represented by the text
   def convert
     lines = @text.split("\n\n")
-
-    lines.map do |numbers|
-      rows = numbers
-        .split("\n")
-        .map { |row| fix_padding(row).scan(/.{1,3}/) }
-      
-      digits = rows[0]
-        .zip(rows[1])
-        .zip(rows[2])
-        .map(&:flatten)
-        .map(&:join)
-  
-      digits
-        .map { |number_string| DIGITS[number_string] || '?' }
-        .join
-    end.join(',')
+    
+    lines
+      .map { |number_string| decode_digits(parse_text(number_string)) }
+      .join(',')
   end
 
   private
+
+  # returns an array of strings, each one representing a single digit
+  def parse_text(number_string)
+    rows_in_triples = number_string
+      .split("\n")
+      .map { |row| fix_padding(row).scan(/.{3}/) }
+
+    rows_in_triples[0]
+      .zip(rows_in_triples[1])
+      .zip(rows_in_triples[2])
+      .map(&:flatten)
+      .map(&:join)
+  end
+
+  # returns a string of digits and/or '?'
+  def decode_digits(digit_pattern)
+    digit_pattern
+      .map { |str| DIGIT_PATTERNS[str] || '?' }
+      .join
+  end
 
   # adds whitespace until lenght of given string is divisible by 3
   def fix_padding(row)
