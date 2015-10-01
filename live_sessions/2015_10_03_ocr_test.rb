@@ -153,7 +153,6 @@ class OCRTest < MiniTest::Unit::TestCase
   end
 
   def test_identify_11_11
-    skip
     text = <<-NUMBER.chomp
 
   |  |

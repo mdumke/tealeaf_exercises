@@ -1,5 +1,3 @@
-require 'pry'
-
 class OCR
   DIGIT_PATTERNS = {
     ' _ | ||_|' => '0',
@@ -31,15 +29,26 @@ class OCR
 
   # returns an array of strings, each one representing a single digit
   def parse_text(number_string)
-    rows_in_triples = number_string
-      .split("\n")
-      .map { |row| fix_padding(row).scan(/.{3}/) }
+    rows = rows_in_triples(number_string)
 
-    rows_in_triples[0]
-      .zip(rows_in_triples[1])
-      .zip(rows_in_triples[2])
+    rows[0]
+      .zip(rows[1])
+      .zip(rows[2])
       .map(&:flatten)
       .map(&:join)
+  end
+
+  # returns an array of rows, each broken into substrings of length 3
+  def rows_in_triples(number_string)
+    rows = number_string.split("\n")
+
+    max_length = rows.map(&:length).max
+
+    rows.map do |row|
+      # add padding to fix row-length if necessary
+      row += ' ' * (max_length - row.size)
+      row.scan(/.{3}/) 
+    end
   end
 
   # returns a string of digits and/or '?'
@@ -47,17 +56,6 @@ class OCR
     digit_pattern
       .map { |str| DIGIT_PATTERNS[str] || '?' }
       .join
-  end
-
-  # adds whitespace until lenght of given string is divisible by 3
-  def fix_padding(row)
-    return '   ' if row.empty?
-
-    row += case row.size % 3
-           when 2 then ' '
-           when 1 then '  '
-           else ''
-           end
   end
 end
 
