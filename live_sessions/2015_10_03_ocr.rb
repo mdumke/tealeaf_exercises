@@ -18,44 +18,36 @@ class OCR
 
   # returns a string of digits represented by the text
   def convert
-    lines = @text.split("\n\n")
-    
-    lines
-      .map { |number_string| decode_digits(parse_text(number_string)) }
+    @text
+      .split("\n\n")
+      .map { |line| decode_digits(parse_text(line)) }
       .join(',')
   end
 
   private
 
   # returns an array of strings, each one representing a single digit
-  def parse_text(number_string)
-    rows = rows_in_triples(number_string)
+  def parse_text(text)
+    row1, row2, row3 = rows_in_triples(text)
 
-    rows[0]
-      .zip(rows[1])
-      .zip(rows[2])
-      .map(&:flatten)
-      .map(&:join)
+    row1.zip(row2).zip(row3).map(&:flatten).map(&:join)
   end
 
   # returns an array of rows, each broken into substrings of length 3
-  def rows_in_triples(number_string)
-    rows = number_string.split("\n")
+  def rows_in_triples(text)
+    rows = text.split("\n")
 
     max_length = rows.map(&:length).max
 
     rows.map do |row|
       # add padding to fix row-length if necessary
       row += ' ' * (max_length - row.size)
-      row.scan(/.{3}/) 
+      row.scan(/.{3}/)
     end
   end
 
   # returns a string of digits and/or '?'
   def decode_digits(digit_pattern)
-    digit_pattern
-      .map { |str| DIGIT_PATTERNS[str] || '?' }
-      .join
+    digit_pattern.map { |str| DIGIT_PATTERNS[str] || '?' }.join
   end
 end
-
