@@ -1,5 +1,4 @@
 class OCR
-  # !!! using a matrix changes to patterns, adapt to pass tests...
   DIGIT_PATTERNS = {
     ' _ | ||_|' => '0',
     '     |  |' => '1',
@@ -21,35 +20,29 @@ class OCR
   def convert
     @text
       .split("\n\n")
-      .map { |line| decode_digits(parse_line(line)) }
+      .map { |line| decode_digits(parse_text(line)) }
       .join(',')
   end
 
   private
 
   # returns an array of strings, each one representing a single digit
-  def parse_line(line)
-    matrix(line)
-      .each_slice(3)
-      .map(&:join)
+  def parse_text(text)
+    row1, row2, row3 = rows_in_triples(text)
+
+    row1.zip(row2, row3).map(&:join)
   end
 
-  # returns the characters of the text in a 3xn matrix format
-  def matrix(text)
-    row1, row2, row3 = rows_as_char_arrays(text)
-    row1.zip(row2, row3)
-  end
-
-  # returns the text broken into arrays of chars, fixes unequal lengths
-  def rows_as_char_arrays(text)
+  # returns an array of rows, each broken into substrings of length 3
+  def rows_in_triples(text)
     rows = text.split("\n")
 
     max_length = rows.map(&:length).max
 
     rows.map do |row|
-      # add padding to fix row length if necessary
-      row += ' ' * (max_length - row.length)
-      row.chars
+      # add padding to fix row-length if necessary
+      row += ' ' * (max_length - row.size)
+      row.scan(/.{3}/)
     end
   end
 
