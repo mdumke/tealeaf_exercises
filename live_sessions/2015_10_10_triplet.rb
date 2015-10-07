@@ -3,8 +3,7 @@ class Triplet
     result = []
 
     possible_triplets(options) do |triplet|
-      next unless triplet.pythagorean?
-      next unless triplet.sum == options[:sum] if options[:sum]
+      next unless triplet.valid?(options)
 
       result << triplet
     end
@@ -41,5 +40,9 @@ class Triplet
 
   def pythagorean?
     @a**2 + @b**2 == @c**2
+  end
+
+  def valid?(options)
+    pythagorean? && (!options[:sum] || sum == options[:sum])
   end
 end
