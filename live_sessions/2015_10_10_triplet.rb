@@ -1,15 +1,15 @@
 class Triplet
-  def self.where(options = {})
-    triplets = []
+  def self.where(options)
+    result = []
 
     possible_triplets(options) do |triplet|
       next unless triplet.pythagorean?
       next unless triplet.sum == options[:sum] if options[:sum]
 
-      triplets << triplet
+      result << triplet
     end
 
-    triplets
+    result
   end
 
   def self.possible_triplets(options)
