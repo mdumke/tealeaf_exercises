@@ -1,10 +1,10 @@
 class Triplet
   def self.where(options)
-    possible_triplets(options).select(&:valid?)
-  end
+    possible_triplets = TripletsEnumerator.new(options)
 
-  def self.possible_triplets(options)
-    TripletsEnumerator.new(options)
+    possible_triplets
+      .select(&:pythagorean?)
+      .reject(&:invalid_sum?)
   end
 
   def initialize(a, b, c, required_sum = nil)
@@ -24,8 +24,8 @@ class Triplet
     @a**2 + @b**2 == @c**2
   end
 
-  def valid?
-    pythagorean? && (!@required_sum || sum == @required_sum)
+  def invalid_sum?
+    @required_sum && sum != @required_sum
   end
 end
 
