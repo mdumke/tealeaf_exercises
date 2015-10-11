@@ -82,24 +82,15 @@ The Rails helpers also provide named routes, which are methods that return the c
 
 The one big thing I've learned this week about layouts is that there is a different layout supposed to exist for every controller. Rails will try to find these layouts in the respective view subfolders. If you can do with an overall layout, use one at the application level. In addition, it is fairly easy to specify which layout to render for which controller in case you want to deviate from the defaults. This can be specified for each action, or on top of the controller for the whole controller or just a subset of actions, or at the application controller level. It is even possible to specify the layout at runtime:
 
-`class MoviesController < ApplicationController`
+    class MoviesController < ApplicationController
+      layout :current_layout
 
-`  layout :current_layout`
+      private
 
-`  `
-
-`  private`
-
-`  `
-
-`  def current_layout`
-
-`    ['layoutA', 'layoutB', 'layoutC'].sample`
-
-`  end`
-
-`end`
-
+      def current_layout
+        ['layoutA', 'layoutB', 'layoutC'].sample
+      end
+    end
 
 Layouts provide the common structure into which the different views are inserted. According to the basic mechanism, the layout will `yield` and the view will be inserted at this position. But notice that this can take arguments to insert parts of the view in special, say the head or a sidebar.
 
