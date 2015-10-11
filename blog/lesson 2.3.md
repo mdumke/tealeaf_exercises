@@ -1,6 +1,6 @@
 # Lesson 3 - Authentication and Polymorphic Associations
 
-The third week continues the previous narrative of manipulating data through a user interface. We now add another layer of complexity in that we don't want just anybody to perform any action. Instead, authentication is introduced in order to restrict access to controller action and hide information in views. Two other topics that are addressed are polymorphic associations, an extension on the first week's discussion of data structures, and the Rails asset pipeline.
+The third week continues the previous narrative of manipulating data through a user interface. We now add another layer of complexity in that we don't want just anybody to perform any action. Instead, authentication is introduced in order to restrict access to controller actions and hide information in views. Two other topics that are addressed are polymorphic associations, an extension of the first week's discussion of data structures, and the Rails asset pipeline.
 
 
 ## Authentication from Scratch
@@ -19,7 +19,7 @@ Note that the `confirmation: true` part is only relevant when there is actually 
 
 ### Routing and login handling
 
-Since HTTP is a stateless protocol we need a way of keeping track of whether a user is already authenticated or not. This is typically done via the session-cookie that Rails conveniently manages for us. The concept of a session is of central importance in this context because it makes little sense to handle login and logout actions at e.g. a users controller since this does not affect the user-resource. While a session is not itself a resource it still makes sense to have a sessions-controller that handles user login and logout, only that the routes will not be setup as resourceful routes, but rather explicitely like e.g.
+Since HTTP is a stateless protocol we need a way of keeping track of whether a user is already authenticated or not. This is typically done via the session-cookie that Rails conveniently manages for us. The concept of a session is of central importance in this context because it makes little sense to handle login and logout actions at e.g. a users controller since this does not affect the user-resource. While a session is not itself a resource it still makes sense to have a sessions-controller that handles user login and logout, only that the routes will not be set up as resourceful routes, but rather explicitely like e.g.
 
     get '/login', to: 'sessions#new'
     post '/login', to: 'sessions#create'
@@ -44,7 +44,7 @@ To perform user authentication, we can refer to the `authenticate`-method that `
 
 # Securing controller actions
 
-Once user authentication and session login are setup, it is important to restrict access to sensitive controller actions. Two common concerns are that certain actions should only be performed by users that are logged in and certain other actions should only be performed by users that own a resource. In both cases, restricting access is usually implemented in a before_action hook. As an example, we might want to only allow logged in users to vote on a post, so in the respective controller (e.g. posts or votes), we can specify `before_action :require_user, only: [:vote]`. Or as another example, if we only want to allow users that wrote a post to edit it, we could put `before_action :require_same_user, only: [:edit, :update]` at the top of the posts controller. How the require_same_user method looks depends on the context and how the user is determined, in the user controller where we've already setup a @user instance variable it might look like this:
+Once user authentication and session login are set up, it is important to restrict access to sensitive controller actions. Two common concerns are that certain actions should only be performed by users that are logged in and certain other actions should only be performed by users that own a resource. In both cases, restricting access is usually implemented in a before_action hook. As an example, we might want to only allow logged in users to vote on a post, so in the respective controller (e.g. posts or votes), we can specify `before_action :require_user, only: [:vote]`. Or as another example, if we only want to allow users that wrote a post to edit it, we could put `before_action :require_same_user, only: [:edit, :update]` at the top of the posts controller. How the require_same_user method looks depends on the context and how the user is determined, in the user controller where we've already setup a @user instance variable it might look like this:
 
     def require_same_user
       if current_user != @user
@@ -78,12 +78,12 @@ The `helper_method`-call in the application controller makes the methods provide
 
 ### The presentation layer
 
-Since some users are not allowed to perform certain actions or even see certain information, the views have to be adapted accordingly. This is simple using the logged_in? or current_user helper methods exposed in the application controller. All that remains to do is show or hide view-content depending on whether or not a user is logged in (or fulfills other requirements we might want to add.
+Since some users are not allowed to perform certain actions or even see certain information, the views have to be adapted accordingly. This is simple using the logged_in? or current_user helper methods exposed in the application controller. All that remains to do is show or hide view-content depending on whether or not a user is logged in (or fulfills other requirements we might want to add).
 
 
 ## Polymorphic Associations
 
-Polymorphic Associations are an addendum to the first week's discussion on Active Record and database schemas because they are a special way of setting up 1:M associations. Simply put, polymorphic association are associations where a resource can belong to not just one other type of resource but multiple other types. For a better understanding, it is helpful to distinguish between a subject and an object side of an association. A comment may be made *by* a user (so the user would be subject) but it can be *on* something, and potentially on different things (movies, posts, articles, the wheather, ...). Polymorphic associations can have different types of resources *on the object side*.
+Polymorphic Associations are an addendum to the first week's discussion on Active Record and database schemas because they are a special way of setting up 1:M associations. Simply put, polymorphic associations are associations where a resource can belong to not just one other type of resource but multiple other types. For a better understanding, it is helpful to distinguish between a subject and an object side of an association. A comment may be made *by* a user (so the user would be subject) but it can be *on* something, and potentially on different things (movies, posts, articles, the wheather, ...). Polymorphic associations can have different types of resources *on the object side*.
 
 The problem with setting up these kinds of associations in the classic has-many way is that we would need a foreign key on the resource for every type of associated resource. Given that you could for example like one hundred different types of things, the likes-table would have one hundred columns holding e.g. `picture_id`, `movie_id`, `post_id`, etc. Moreover, the resulting matrix would be very sparse because the association could only be with one of these resouces. A table might hence look like this:
 
@@ -106,13 +106,13 @@ With these conventions in place, the above example table can be reduced to this 
     3      2       Photo           6
 
 
-At the Active Record layer, there are some conventions for setting up polymorphic associations as well. On the belongs_to side, we don't specify each associated model but only the general name, e.g. `belongs_to :voteable, polymorphic: true`. On the many side, we can pick a name for the association like `has_many :vote, as: :voteable` or `has_many :comments, as: :commentable`. Note that it is also possible to have hmt-associations based on polymorphic associations:
+At the Active Record layer, there are some conventions for setting up polymorphic associations as well. On the belongs_to side, we don't specify each associated model but only the general name, e.g. `belongs_to :voteable, polymorphic: true`. On the many side, we can pick a name for the association like `has_many :votes, as: :voteable` or `has_many :comments, as: :commentable`. Note that it is also possible to have hmt-associations based on polymorphic associations:
 
     has_many :votes, as: :voteable
     has_many :voters, through: :votes, source: :user
 
 
-A note on routing. If we setup a polymorphic association like votes, we might want to create a votes-controller, pass in the associated type of resource and handle voting at this one place. The downside of this (besides having to pass in which type of resouce we're dealing with) would be that votes would become another top-level route. As an alternative, the resources themselves could handle the voting (or liking or commenting). In this case, it would make sense to extend the resourceful routes for the resources to handle a new vote action. The way routes are set up in Rails, there are ways to extend the index-route as well as the routes for each single resouce (which we would want in this case). The syntax for this is as follows:
+A note on routing. If we set up a polymorphic association like votes, we might want to create a votes-controller, pass in the associated type of resource and handle voting at this one place. The downside of this (besides having to pass in which type of resouce we're dealing with) would be that votes would become another top-level route. As an alternative, the resources themselves could handle the voting (or liking or commenting). In this case, it would make sense to extend the resourceful routes for the resources to handle a new vote action. The way routes are set up in Rails, there are ways to extend the index-route as well as the routes for each single resouce (which we would want in this case). The syntax for this is as follows:
 
     resources :posts do
       member do
@@ -127,7 +127,7 @@ A note on routing. If we setup a polymorphic association like votes, we might wa
 
 ## The Rails Asset Pipeline
 
-Before Rails introduced the asset pipeline, it was necessary to manually minify and obfuscate Javascript and CSS files, combine them into a single file and manage caching for them. There are a number of tools to automate this process, and one of them, sprockets, has found it's way into Rails and is now the default asset managing tool. In order for sprockets to know which files to process, it uses manifest files with the somewhat weird `//= require`-syntax.
+Before Rails introduced the asset pipeline, it was necessary to manually minify and obfuscate Javascript and CSS files, combine them into a single file and manage caching for them. There are a number of tools to automate this process, and one of them, sprockets, has found its way into standard Rails and is now the default asset managing tool. In order for sprockets to know which files to process, it uses manifest files with the somewhat weird `//= require`-syntax.
 
 To manually compile assets there is a rake task: `rake assets:precompile`. This will take the specified files, which can be under app/assets or lib/assets, process them and put them as a big javascript and a big css file under public/assets. The compiled files will have a large hash-number appended to their names. This is a *cache-buster*: it changes with each processing and browsers will now know to download the new version.
 

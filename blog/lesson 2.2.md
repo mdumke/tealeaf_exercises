@@ -21,11 +21,11 @@ Non-model backed forms use helper methods that end in `_tag` like `text_field_ta
       f.submit
     end
 
-In this example, the form will by convention be posted to `/posts`. When working with nested resources, however, `form_for` can create appropriately nested paths only when given more information in the form of the relevant parent options, which might then look like this:
+In this example, the form will by convention be posted to `/posts`. When working with nested resources, however, `form_for` can create appropriately nested paths only when given more information in the form of the relevant parent objects, which might then look like this:
 
     form_form [@user, @post] do |f| ...
 
-This will post to `/users/:id/posts` by default. There is something else to note about the above example. This example will only work if the `@post` model has either an attribute or a virtual attribute named `title`. Because `form_for` is used to collect data for manipulating a model, it will only work with valid (virtual) attributes of that model. The rationale behind this is that the data will be prepared in a way that it can easily be mass-assigned to create or update a model-instance once it has reached the controller.
+This will post to `/users/:user_id/posts` by default. There is something else to note about the above example. This example will only work if the `@post` model has either an attribute or a virtual attribute named `title`. Because `form_for` is used to collect data for manipulating a model, it will only work with valid (virtual) attributes of that model. The rationale behind this is that the data will be prepared in a way so that it can easily be mass-assigned to create or update a model-instance once it has reached the controller.
 
 And how will this data be prepared? According to the http-protocol, all query-data is transmitted in the form of name-value-pairs. The form_for-helper will set up the names according to Rails' strict naming conventions so that they can be parsed before they are added to the params-hash. For example, the pair `address[city]=Lima` will be part of the params-hash as `{ address: { city: 'Lima' }}`. For another example, the pairs `category_ids[]=1` and `category_ids[]=2` will appear in the params-hash as `{ category_ids: ['1', '2'] }`. Following those naming conventions enables elegant code in the controller when it comes to mass-assigning attributes.
 
@@ -44,7 +44,7 @@ or simply
 
 to whitelist everything. Because whitelisting might be required for a number of controller actions, it is common practice to extract this to a helper method.
 
-There are two other common patterns worth mentioning in this context. The first is the *before_action*. It is possible to specify at the top of a controller which methods to call before any of the action-methods is called. The main purposes of this are authentication and setting up instance variables, which is a common concern for different controller actions. See below for an example. The second common pattern is that the controller tries to save a model instance and depending on the success of this actions redirects or renders the form again. The following controller-skeleton for a posts controller demonstrates all three patterns mentioned:
+There are two other common patterns worth mentioning in this context. The first is the *before_action*. It is possible to specify at the top of a controller which methods to call before any of the action-methods are called. The main purposes of this are authentication and setting up instance variables, which are common concerns for different controller actions. See below for an example. The second common pattern is that the controller tries to save a model instance and depending on the success of this action redirects or renders the form again. The following controller-skeleton for a posts controller demonstrates all three patterns mentioned:
 
     class PostsController < ApplicationController
       before_action :set_post, only: [:update]
@@ -88,7 +88,7 @@ or
 
 Validations can check for the existence of attributes on the model-instance to be saved, or for their form or content. They can check if strings are long enough or fancy enough or conform to a certain pattern or if numbers are in a certain range. This can impose harsh restrictions on the form of the data that gets stored in the database.
 
-Another thing that validations do apart from potentially aborting a saving-process is generating error-messages. These can be Rails' default or custom messages. When validations for an attribute fail, the corresponding error message is saved 'on the model'. Error messages can then be retrieved via `my_model.errors.full_messages`. While saving error messages on the model might seem a little strange at first, it makes a lot of sense when it comes to generating feedback for users.
+Another thing that validations do apart from potentially aborting a saving-process is generating error-messages. These can be Rails' default or custom messages. When validations for an attribute fail, the corresponding error message is saved **on the model**. Error messages can then be retrieved via `my_model.errors.full_messages`. While saving error messages on the model might seem a little strange at first, it makes a lot of sense when it comes to generating feedback for users.
 
 
 ## And back to the Presentation Layer: user feedback
@@ -101,11 +101,11 @@ This concludes the circle from entering data into the form all the way to gettin
 
 ### View Partials
 
-View Partials are a way of extracting html-elements that are shared by many views into reusable parts. They can then be rendered either from within a layout or from within another view using `render 'controller_name/partial_name'`. Note by the way that partials are named with a leading underscore but are referenced without. It is also possible to pass local variables to partials as in `render 'my_partial', title: 'Crazy Horse'`. There are some conventions as to how partials are expected to be named, and as always, going with those conventions can result in quite efficient code. For example, writing `render @post` will look for a `_post`-partial in the posts-view-folder and automatically render that. Likewise, `render @posts` will loop through all the posts, take the _post-partial, pass in the current post as a local variable named 'post' and render the partial. It is even possible to define spacer-templates that will be rendered in between the post-partials. With some extra work it is of course possible to deviate from the defaults and, say, render a different collection, specify another view-partial and so on.
+View Partials are a way of extracting html-elements that are shared by many views into reusable parts. They can then be rendered either from within a layout or from within another view using `render 'controller_name/partial_name'`. Note by the way that partials are named with a leading underscore but are referenced without. It is also possible to pass local variables to partials as in `render 'my_partial', title: 'Crazy Horse'` or `render 'my_other_partial', locals: { crazy: 'horse', reasonable: 'cow' }`. There are some conventions as to how partials are expected to be named, and as always, going with those conventions can result in quite concise code. For example, writing `render @post` will look for a `_post`-partial in the posts-view-folder and automatically render that. Likewise, `render @posts` will loop through all the posts, take the _post-partial, pass in the current post as a local variable named 'post' and render the partial. It is even possible to define spacer-templates that will be rendered in between the post-partials. With some extra work it is of course possible to deviate from the defaults and, say, render a different collection, specify another view-partial and so on.
 
 ### View Helpers
 
-While partials are simply parts of views and hence contain mostly html and little logic, helpers come into play when more logic is needed within the views. Logic that is only relevant for presentation-concerns is not supposed to be placed at the controller of model layer. Instead, helpers are modules that are automatically mixed into the views so that they have access to all defined helper methods. Helpers defined within the application-helper-module will be available accross all controllers and views while those defined in model-related modules are only available in the appropriate views, of course. Helpers are not supposed to contain a lot of html. If you find yourself writing much html into a helper function, think about creating a partial instead.
+While partials are simply parts of views and hence contain mostly html and little logic, helpers come into play when more logic is needed within the views. Logic that is only relevant for presentation-concerns is not supposed to be placed at the controller or model layer. Instead, helpers are modules that are automatically mixed into the views so that they have access to all defined helper methods. Helpers defined within the application-helper-module will be available accross all controllers and views while those defined in model-related modules are only available in the appropriate views, of course. Helpers are not supposed to contain a lot of html. If you find yourself writing much html into a helper function, think about creating a partial instead.
 
 
 ## Fun Facts and Best Practices
@@ -118,7 +118,7 @@ Once again, I will put some interesting things at the end that didn't really fit
 - when migrations don't run end-to-end cleanly (which they should!), you can import the schema directly from schema.rb via `rake db:schema:import`
 - this and other available rake tasks can be viewed via `rake -T`
 - Rails simulates a PATCH-request by inserting a hidden field tag with a name of `_method` and a value of `patch`
-- when you have to render checkboxes in a model-backed form, the check_box helper is quirky, by `collection_check_box` can be really helpful
+- when you have to render checkboxes in a model-backed form, the check_box helper is quirky, but `collection_check_box` can be really helpful
 
 
 
