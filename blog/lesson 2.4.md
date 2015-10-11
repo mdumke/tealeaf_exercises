@@ -9,13 +9,10 @@ As page reloads become more expensive, exchanging only smaller parts of a websit
 
 On the server side, the request will we processed `as JS` and a Rails controller can distinguish them from other types accordingly using the respond_to helper as in
 
-`respond_to do |format|`
-
-`  format.html # default: try to render an .html(.erb) template`
-
-`  format.js   # default: try to render a .js(.erb) template`
-
-`end`
+    respond_to do |format|
+      format.html # default: try to render an .html(.erb) template
+      format.js   # default: try to render a .js(.erb) template
+    end
 
 The .html and .js methods take an optional block where the rendering can be specified, but in its absence Rails will try to render templates according to the standard naming conventions. Javascript templates will also be preprocessed by the erb (or haml) preprocessors if the filenames and in .erb (or .haml). This is particularly helpful as the templates can now have access to instance variables or local variables passed in from the controller.
 
@@ -39,19 +36,13 @@ Managing roles and permissions can become very complicated, but especially clien
 
 A simpler approach to roles, and one that is typically sufficient for small and medium sized applications is to have just one user model and add a role column to it specifying the user's role. Then on the model there can just be a number of instance methods like:
 
-`def admin?`
+    def admin?
+      role.to_sym == :admin
+    end
 
-`  role.to_sym == :admin`
-
-`end`
-
-`  `
-
-`def moderator?`
-
-`  role.to_sym == :moderator`
-
-`end`
+    def moderator?
+      role.to_sym == :moderator
+    end
 
 At the controller level it is now easy to check permissions for an action using methods like `require_admin` according to a standard check for logged-in users.
 
@@ -62,15 +53,11 @@ Rails and particularly ActiveSupport::TimeZone provide a number of convenient he
 
 In order to keep track of the time zone for a particular user, store it as a simple string in the database. Constructing an input field to help the user select from the available timezones is simple with a new form-helper method that comes with Rails 4:
 
-`f.time_zone_select(`
-
-`  :time_zone,`
-
-`  ActiveSupport::TimeZone.all,`
-
-`  default: Time.zone.name`
-
-`)`
+    f.time_zone_select(
+      :time_zone,
+      ActiveSupport::TimeZone.all,
+      default: Time.zone.name
+    )
 
 Note that `Time.zone` will refer to the default time zone set for the application whereas simply using `Time` will be the respective system time. For this reason, refrain from using `Time.now` but always use `Time.zone.now` or `Time.current` which is a short form for that.
 
@@ -85,15 +72,11 @@ First of all, let there be a few general words of caution. When integrating an e
 
 As far as Rails is concerned, building simple APIs is as easy as using the `respond_to` helper in the controller to return JSON, XML or any other requested format depending on the request type. This could be as simple as in this example:
 
-`respond_to do |format|`
-
-`  format.html`
-
-`  format.json { render json: @posts }`
-
-`  format.xml { render xml: @posts }`
-
-`end `
+    respond_to do |format|
+      format.html
+      format.json { render json: @posts }
+      format.xml { render xml: @posts }
+    end
 
 But it can, of course, be much more complicated and include, for instance, rendering json-templates that exactly define which model-attributes or associated models to return.
 
@@ -114,102 +97,58 @@ DRYing up code is an essential part of refactoring. Sometimes it makes sense to 
 
 Extracting instance methods is as simple as putting them inside a new module (remember that module names end in 'able' by convention) and including the module in the relevant classes. But modules can do more. They can define class methods and they can execute code once at the moment the module gets included. While this originally required some meta-programming, ActiveSupport::Concern abstracts this away. To give an example, we can extract the code necessary to establish a polymorphic association with a 'Vote'-class to a module:
 
-`module Voteable`
+    module Voteable
+      extend ActiveSupport::Concern
 
-`  extend ActiveSupport::Concern`
+      # this will be executed when the module gets included
+      included do
+        has_many :votes, as: :voteable
+      end
 
-`  `
+      # this will be an instance method
+      def total_votes
+        up_votes - down_votes
+      end
 
-`  # this will be executed when the module gets included`
-
-`  included do`
-
-`    has_many :votes, as: :voteable`
-
-`  end `
-
-`  `
-
-`  # this will be an instance method`
-
-`  def total_votes`
-
-`    up_votes - down_votes`
-
-`  end `
-
-`  `
-
-`  # the methods defined here will be class methods`
-
-`  module ClassMethods`
-
-`    def my_class_method`
-
-`    end`
-
-`  end`
-
-`end`
+      # the methods defined here will be class methods
+      module ClassMethods
+        def my_class_method
+        end
+      end
+    end
 
 
 The block passed to 'included' will call the class' has_many-method once when the module is included to establish the association with the vote.
 
 Including the Voteable-module will add the specified behavior, but this is fixed in advanced an cannot be customized by the model including the module. Yet there are circumstances where we'd like to pass in configurations to the module. In these cases, we need to add a bit of metaprogramming. A common pattern that is used extensively in Rails is to pass in variables to the class methods that are used by the module to set the values of class_attributes. In the following example, we add the ability to walk to different models and we specify the number of legs for each class:
 
-`module Walkable`
+    module Walkable
+      extend ActiveSupport::Concern
 
-`  extend ActiveSupport::Concern`
+      included do
+        class_attribute :legs
+      end
 
-`  `
+      def how_many_legs_do_you_have
+        puts "#{self.class.legs}"
+      end
 
-`  included do`
+      module ClassMethods
+        def number_of_legs(legs)
+          self.legs = legs
+        end
+      end
+    end
 
-`    class_attribute :legs`
+    class Cat
+      include Walkable
+      number_of_legs 4
+    end
 
-`  end`
-
-`  `
-
-`  def how_many_legs_do_you_have`
-
-`    puts "#{self.class.legs}"`
-
-`  end`
-
-`  `
-
-`  module ClassMethods`
-
-`    def number_of_legs(legs)`
-
-`      self.legs = legs`
-
-`    end`
-
-`  end`
-
-`end`
-
-`  `
-
-`class Cat`
-
-`  include Walkable`
-
-`  number_of_legs 4`
-
-`end`
-
-`  `
-
-`class Human`
-
-`  include Walkable`
-
-`  number_of_legs 2`
-
-`end`
+    class Human
+      include Walkable
+      number_of_legs 2
+    end
 
 
 Notice how the module gives access to the class_attribute at the instance-level. In the context of Rails, we might use a pattern like this to extract slugging to a module and specify the column to base a slug in each class that includes the module.
@@ -232,36 +171,22 @@ In case the gem defines a file that needs to be explicitely included, that is be
 
 Some applications add another layer of security by having a user type in a pin that gets send to their telephone before login is complete. This means that in order to user 2-factor-authentication, we need to add a phone (string) and a pin field to the user-data. When login is successful, a random (but unique) pin gets generated and sent via Twilio (easy to use API but, of course, costs something). The user is then redirected to a page where they can enter their pin. This page should not be accessible for users that are not in 'limbo'. After successfully entering the number, the user gets logged in and the pin is deleted. An appropriate method on the sessions controller to take care of that may look like this:
 
-`def pin`
+    def pin
+      access_denied if session[:two_factor].nil?
 
-`  access_denied if session[:two_factor].nil?`
+      if request.post? # GET will just render the template
+        user = User.find_by_pin(params[:pin])
 
-`  `
-
-`  if request.post? # GET will just render the template`
-
-`    user = User.find_by_pin(params[:pin])`
-
-`    if user`
-
-`      user.remove_pin!`
-
-`      session[:two_factor] = nil`
-
-`      login_user!(user)`
-
-`    else`
-
-`      flash['error'] = 'Something is wrong with your pin'`
-
-`      redirect_to pin_path`
-
-`    end`
-
-`  end`
-
-`end`
-
+        if user
+          user.remove_pin!
+          session[:two_factor] = nil
+          login_user!(user)
+        else
+          flash['error'] = 'Something is wrong with your pin'
+          redirect_to pin_path
+        end
+      end
+    end
 
 
 ## Fun Facts and Best Practices

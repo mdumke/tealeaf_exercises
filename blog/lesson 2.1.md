@@ -20,42 +20,31 @@ While relations among data are established via foreign keys and join tables at t
 
 First of all, if an object 'belongs to' another object, it has to have a foreign key for this object. There are conventional names for how to name foreign keys, but Rails can be told to use custom ones like so:
 
-`belongs_to :creator, foreign_key: 'user_id', class_name: 'User'`
+    belongs_to :creator, foreign_key: 'user_id', class_name: 'User'
 or
-`has_many :subscribers, through :subscriptions, source: :user`
+    has_many :subscribers, through :subscriptions, source: :user
 
 Secondly, there are no many-to-many-associations without join tables. In this respect, `has_many :through` (hmt) and `has_and_belongs_to_many` (habtm) are similar. The difference between them is that the hmt-association requires the join table to have its own model on which validations can be run and which might hold more information that just the two ids that link the models. It is recommended to always use this type of M:M-association because when requirements for a project change, it might be necessary to store information at the join-level. As a simple example, think of a many-to-many association between users and newsletters. They might be linked through subscriptions. And it might at one point be useful to keep track of the kind of subscription, or when it started.
 
 Specifying associations at the Rails model level also has the advantage that Rails adds methods for conveniently creating and retrieving objects that belong together. For example, say we've specified a user who has many posts with as follows:
 
-`class User < ActiveRecord::Base`
+    class User < ActiveRecord::Base
+      has_many :posts
+    end
 
-`  has_many :posts`
-
-`end`
-
-
-
-`class Post < ActiveRecord::Base`
-
-`  belongs_to :user`
-
-`end`
+    class Post < ActiveRecord::Base
+      belongs_to :user
+    end
 
 
 Now we have access to multiple methods both on the post and on the user side such as
 
-`User.first.posts` to retrieve all associated posts
-
-`User.first.posts.build` to setup, but not save, a new associated post object
-
-`User.first.posts = [post1, post2]` to assign an array of posts
-
-`User.first.post_ids` to get a list of, well, the associated post_ids
-
-`User.first.posts.delete(some_post)` to revoke an association (but not delete the post)
-
-`User.first.posts << some_post` to add another post
+    User.first.posts        # to retrieve all associated posts
+    User.first.posts.build  # to setup, but not save, a new associated post object
+    User.first.post_ids     # to get a list of, well, the associated post_ids
+    User.first.posts = [post1, post2]   # to assign an array of posts
+    User.first.posts.delete(some_post)  # to revoke an association (but not delete the post)
+    User.first.posts << some_post       # to add another post
 
 
 The list goes on. This way, Rails adds a layer on top of the underlying database for conveniently manipulating data. It cannot do anything you couldn't do with raw SQL, but it can make things much, much more convenient. This might actually result in a pretty complex application for working with data say, from the console. So far, there is no controller and no routing involved and hence there's no way yet to get to this data from the outside.
@@ -67,11 +56,11 @@ Say you have this request to make to this big organization. They inhabit this hu
 
 There are many, many ways to setup routes, there are modules and concerns and namespaces, custom routes can be created by matching wildcards or reserved symbols like `:controller` and `:action`. However in applications where actions are RESTful, routes can be generated automatically via *resourceful routing*. These routes can be setup for models that have multiple entities like
 
-`resources :images, except: [:destroy]`
+    resources :images, except: [:destroy]
 
 or for resources that exist only once, e.g.
 
-`resource :account`.
+    resource :account
 
 This will generate routes for the basic CRUD actions. Needless to say that they can easily be nested. The `except` and `only` keys can be specified to restrict the creation of routes. This may not seem too important at first, but think about it. The routes define your application's endpoints that can be accessed by the outside world. They are like the different doors through which you can enter a building. If you don't want anybody to use a certain door, what's more effective than - not building the door.
 
@@ -96,7 +85,7 @@ Layouts provide the common structure into which the different views are inserted
 
 Another way to insert views into one another is by using partials. These are named with a leading underscore but referred to without it. They can be inserted via a simple call to render with an appropriate path as argument. Partials can also be inserted while rendering collections, which is particularly helpful because a spacer_template can be inserted between them. A call might look like so:
 
-`= render partial: 'my_impartial_partial', collection: @items, spacer_template: 'simple_rule'`
+    = render partial: 'my_impartial_partial', collection: @items, spacer_template: 'simple_rule'
 
 This will not only render the '_my_impartial_partial'-partial as many times as there are items in the collection passed, but it will also provide the corresponding @item as a local variable named after the template, in this case `my_impartial_partial`.
 
