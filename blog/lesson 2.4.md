@@ -10,8 +10,11 @@ As page reloads become more expensive, exchanging only smaller parts of a websit
 On the server side, the request will we processed `as JS` and a Rails controller can distinguish them from other types accordingly using the respond_to helper as in
 
 `respond_to do |format|`
+
 `  format.html # default: try to render an .html(.erb) template`
+
 `  format.js   # default: try to render a .js(.erb) template`
+
 `end`
 
 The .html and .js methods take an optional block where the rendering can be specified, but in its absence Rails will try to render templates according to the standard naming conventions. Javascript templates will also be preprocessed by the erb (or haml) preprocessors if the filenames and in .erb (or .haml). This is particularly helpful as the templates can now have access to instance variables or local variables passed in from the controller.
@@ -27,7 +30,7 @@ As slugs are typically derived from other attributes like names or titles, an ob
 
 Slugs are typically unique identifiers, so in cases where they depend on attributes that might not be unique, their uniqueness has to be enforced, e.g. by appending a counter. Another caveat is that an application has to ensure that every object actually has a slug, otherwise it could not be retrieved and url generation would fail. While the introduction of basic slugs is not too complecated, using a gem like 'FriendlyId' might help with a number of edge-cases.
 
-Once slugs are setup at the model layer, it is not hard to actually use them. The named route helpers are passed objects from which they create urls, and they implicitely call `to_param` on those object. Overwriting `to_param` on the model to return not the id but the slug switches all urls to using slugs. The controllers will now, of course, have to retrieve models by slug instead of by id, which is trivial apart from the irritating issue that the slug will still be called `:id` in the params-hash when resourceful routing is used. Slugs can also be used when generating unique html-tags to use e.g. in the context of ajax-requests, so the post-element from above might now look like this: `id="post_<%= @post.slug %>".
+Once slugs are setup at the model layer, it is not hard to actually use them. The named route helpers are passed objects from which they create urls, and they implicitely call `to_param` on those object. Overwriting `to_param` on the model to return not the id but the slug switches all urls to using slugs. The controllers will now, of course, have to retrieve models by slug instead of by id, which is trivial apart from the irritating issue that the slug will still be called `:id` in the params-hash when resourceful routing is used. Slugs can also be used when generating unique html-tags to use e.g. in the context of ajax-requests, so the post-element from above might now look like this: `id="post_<%= @post.slug %>"`.
 
 
 ## Simple Roles
@@ -37,11 +40,17 @@ Managing roles and permissions can become very complicated, but especially clien
 A simpler approach to roles, and one that is typically sufficient for small and medium sized applications is to have just one user model and add a role column to it specifying the user's role. Then on the model there can just be a number of instance methods like:
 
 `def admin?`
+
 `  role.to_sym == :admin`
+
 `end`
+
 `  `
+
 `def moderator?`
+
 `  role.to_sym == :moderator`
+
 `end`
 
 At the controller level it is now easy to check permissions for an action using methods like `require_admin` according to a standard check for logged-in users.
@@ -54,9 +63,13 @@ Rails and particularly ActiveSupport::TimeZone provide a number of convenient he
 In order to keep track of the time zone for a particular user, store it as a simple string in the database. Constructing an input field to help the user select from the available timezones is simple with a new form-helper method that comes with Rails 4:
 
 `f.time_zone_select(`
+
 `  :time_zone,`
+
 `  ActiveSupport::TimeZone.all,`
+
 `  default: Time.zone.name`
+
 `)`
 
 Note that `Time.zone` will refer to the default time zone set for the application whereas simply using `Time` will be the respective system time. For this reason, refrain from using `Time.now` but always use `Time.zone.now` or `Time.current` which is a short form for that.
@@ -73,20 +86,24 @@ First of all, let there be a few general words of caution. When integrating an e
 As far as Rails is concerned, building simple APIs is as easy as using the `respond_to` helper in the controller to return JSON, XML or any other requested format depending on the request type. This could be as simple as in this example:
 
 `respond_to do |format|`
+
 `  format.html`
+
 `  format.json { render json: @posts }`
+
 `  format.xml { render xml: @posts }`
+
 `end `
 
 But it can, of course, be much more complicated and include, for instance, rendering json-templates that exactly define which model-attributes or associated models to return.
 
 A url-tool like cURL can really help with developing and exploring APIs. But things can get a bit complicated when using cURL with a Rails app, especially when authentication is involved. Say I want to access the json-data for some records at `localhost:3000/api/records.json` which requires an authenticated user. In order to query this url with cURL I would need to perform the following steps:
 
-1) `curl localhost:3000/ -c session | ag csrf-token`. This is the first step in simulating a login procedure. The response will contain a header which has a session-cookie that curl can now store in a file I call 'session'. The response will also include html that has the authenticity-token in its header. We can grep it out and use it in the next step.
+1. `curl localhost:3000/ -c session | ag csrf-token`. This is the first step in simulating a login procedure. The response will contain a header which has a session-cookie that curl can now store in a file I call 'session'. The response will also include html that has the authenticity-token in its header. We can grep it out and use it in the next step.
 
-2) `curl -X POST localhost:3000/login -F username=matthias -F password=123 -F authenticity_token=abc..xyz -b session -c session`. This simulates a login by posting to the login point. Rails will first check for a valid authenticity token (which we just got) and will make sure the post has a valid session (which we also have now). The response will contain another header containing a new session-cookie which is now the cookie for a valid login-session, so we can overwrite the old 'session'-file.
+2. `curl -X POST localhost:3000/login -F username=matthias -F password=123 -F authenticity_token=abc..xyz -b session -c session`. This simulates a login by posting to the login point. Rails will first check for a valid authenticity token (which we just got) and will make sure the post has a valid session (which we also have now). The response will contain another header containing a new session-cookie which is now the cookie for a valid login-session, so we can overwrite the old 'session'-file.
 
-3) `curl localhost:3000/api/records.json -b session`. Finally, in order to perform the original API-query, we can now simply send along a valid session when curling.
+3. `curl localhost:3000/api/records.json -b session`. Finally, in order to perform the original API-query, we can now simply send along a valid session when curling.
 
 
 ## Extracting common code to Modules
@@ -98,56 +115,102 @@ DRYing up code is an essential part of refactoring. Sometimes it makes sense to 
 Extracting instance methods is as simple as putting them inside a new module (remember that module names end in 'able' by convention) and including the module in the relevant classes. But modules can do more. They can define class methods and they can execute code once at the moment the module gets included. While this originally required some meta-programming, ActiveSupport::Concern abstracts this away. To give an example, we can extract the code necessary to establish a polymorphic association with a 'Vote'-class to a module:
 
 `module Voteable`
+
 `  extend ActiveSupport::Concern`
+
 `  `
+
 `  # this will be executed when the module gets included`
+
 `  included do`
+
 `    has_many :votes, as: :voteable`
+
 `  end `
+
 `  `
+
 `  # this will be an instance method`
+
 `  def total_votes`
+
 `    up_votes - down_votes`
+
 `  end `
+
 `  `
+
 `  # the methods defined here will be class methods`
+
 `  module ClassMethods`
+
 `    def my_class_method`
+
 `    end`
+
 `  end`
+
 `end`
+
 
 The block passed to 'included' will call the class' has_many-method once when the module is included to establish the association with the vote.
 
 Including the Voteable-module will add the specified behavior, but this is fixed in advanced an cannot be customized by the model including the module. Yet there are circumstances where we'd like to pass in configurations to the module. In these cases, we need to add a bit of metaprogramming. A common pattern that is used extensively in Rails is to pass in variables to the class methods that are used by the module to set the values of class_attributes. In the following example, we add the ability to walk to different models and we specify the number of legs for each class:
 
 `module Walkable`
+
 `  extend ActiveSupport::Concern`
+
 `  `
+
 `  included do`
+
 `    class_attribute :legs`
+
 `  end`
+
 `  `
+
 `  def how_many_legs_do_you_have`
+
 `    puts "#{self.class.legs}"`
+
 `  end`
+
 `  `
+
 `  module ClassMethods`
+
 `    def number_of_legs(legs)`
+
 `      self.legs = legs`
+
 `    end`
+
 `  end`
+
 `end`
+
 `  `
+
 `class Cat`
+
 `  include Walkable`
+
 `  number_of_legs 4`
+
 `end`
+
 `  `
+
 `class Human`
+
 `  include Walkable`
+
 `  number_of_legs 2`
+
 `end`
+
 
 Notice how the module gives access to the class_attribute at the instance-level. In the context of Rails, we might use a pattern like this to extract slugging to a module and specify the column to base a slug in each class that includes the module.
 
@@ -158,9 +221,9 @@ Reusing code accross projects is best done with gems. In order to create a gem, 
 
 Once the code is written, and the tests pass, specify a version and a name in the specfile and from the root directory run `gem build my_gem.gemspec`. The build command comes with the gems-gem itself, its output will be a single file that has a version number appended to it and that will reside in the root folder. Now there are two ways to include this gem in a Rails project.
 
-1) Publish the gem. To do so, you will need to sign up for a free account on rubygems.org. After that, make sure the name you chose for the gem has not already been taken. Check this with `gem list -r my_gem_name`. If all is clear, install a gem called 'gemcutter' that can help with publishing (and removing) gems. With gemcutter installed, execute `gem push my_gem_0.0.0.gem`. Gems can be removed via `gem yank my_gem -v '0.0.0'`. With the gem published, it can now be included in the Rails project's gemfile.
+1. Publish the gem. To do so, you will need to sign up for a free account on rubygems.org. After that, make sure the name you chose for the gem has not already been taken. Check this with `gem list -r my_gem_name`. If all is clear, install a gem called 'gemcutter' that can help with publishing (and removing) gems. With gemcutter installed, execute `gem push my_gem_0.0.0.gem`. Gems can be removed via `gem yank my_gem -v '0.0.0'`. With the gem published, it can now be included in the Rails project's gemfile.
 
-2) Hotwire the gem from its directory. While in development, it is rather tedious to update and publish the gem every time something changes. In this case, it is possible to specify the absolute path of the gem's directory on your machine and have it hotwired to your application (meaning there is no need to bundle and restart the app when the gem changes). In the Gemfile, simply say `gem 'my_gem', path: '/absolute/path/to/gem'`.
+2. Hotwire the gem from its directory. While in development, it is rather tedious to update and publish the gem every time something changes. In this case, it is possible to specify the absolute path of the gem's directory on your machine and have it hotwired to your application (meaning there is no need to bundle and restart the app when the gem changes). In the Gemfile, simply say `gem 'my_gem', path: '/absolute/path/to/gem'`.
 
 In case the gem defines a file that needs to be explicitely included, that is best done in application.rb. Simply add `require 'my_gem'` under `require 'rails/all'`.
 
@@ -170,25 +233,40 @@ In case the gem defines a file that needs to be explicitely included, that is be
 Some applications add another layer of security by having a user type in a pin that gets send to their telephone before login is complete. This means that in order to user 2-factor-authentication, we need to add a phone (string) and a pin field to the user-data. When login is successful, a random (but unique) pin gets generated and sent via Twilio (easy to use API but, of course, costs something). The user is then redirected to a page where they can enter their pin. This page should not be accessible for users that are not in 'limbo'. After successfully entering the number, the user gets logged in and the pin is deleted. An appropriate method on the sessions controller to take care of that may look like this:
 
 `def pin`
+
 `  access_denied if session[:two_factor].nil?`
+
 `  `
+
 `  if request.post? # GET will just render the template`
+
 `    user = User.find_by_pin(params[:pin])`
+
 `    if user`
+
 `      user.remove_pin!`
+
 `      session[:two_factor] = nil`
+
 `      login_user!(user)`
+
 `    else`
+
 `      flash['error'] = 'Something is wrong with your pin'`
+
 `      redirect_to pin_path`
+
 `    end`
+
 `  end`
+
 `end`
+
 
 
 ## Fun Facts and Best Practices
 
-- adding pagination is not too complicated. You need 1) the ActiveRecord methods `limit` and `offset`, 2) a way of determining which page to fetch (often done via query parameters), and 3) specify links that have proper query parameters
+- adding pagination is not too complicated. You need 1. the ActiveRecord methods `limit` and `offset`, 2. a way of determining which page to fetch (often done via query parameters), and 3. specify links that have proper query parameters
 - you can define aliases for a model's attributes via `alias_attribute :home, :address` (provided by ActiveSupport)
 - the difference between including and extending a module is that the first will create instance methods and the second will create class methods in the class that includees the module
 - be careful in production when performing operations that touch all the data in a table, it might take really long or hinder execution of other processes

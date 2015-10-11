@@ -29,21 +29,34 @@ Secondly, there are no many-to-many-associations without join tables. In this re
 Specifying associations at the Rails model level also has the advantage that Rails adds methods for conveniently creating and retrieving objects that belong together. For example, say we've specified a user who has many posts with as follows:
 
 `class User < ActiveRecord::Base`
+
 `  has_many :posts`
+
 `end`
 
+
+
 `class Post < ActiveRecord::Base`
+
 `  belongs_to :user`
+
 `end`
+
 
 Now we have access to multiple methods both on the post and on the user side such as
 
 `User.first.posts` to retrieve all associated posts
+
 `User.first.posts.build` to setup, but not save, a new associated post object
+
 `User.first.posts = [post1, post2]` to assign an array of posts
+
 `User.first.post_ids` to get a list of, well, the associated post_ids
+
 `User.first.posts.delete(some_post)` to revoke an association (but not delete the post)
+
 `User.first.posts << some_post` to add another post
+
 
 The list goes on. This way, Rails adds a layer on top of the underlying database for conveniently manipulating data. It cannot do anything you couldn't do with raw SQL, but it can make things much, much more convenient. This might actually result in a pretty complex application for working with data say, from the console. So far, there is no controller and no routing involved and hence there's no way yet to get to this data from the outside.
 
@@ -70,14 +83,23 @@ The Rails helpers also provide named routes, which are methods that return the c
 The one big thing I've learned this week about layouts is that there is a different layout supposed to exist for every controller. Rails will try to find these layouts in the respective view subfolders. If you can do with an overall layout, use one at the application level. In addition, it is fairly easy to specify which layout to render for which controller in case you want to deviate from the defaults. This can be specified for each action, or on top of the controller for the whole controller or just a subset of actions, or at the application controller level. It is even possible to specify the layout at runtime:
 
 `class MoviesController < ApplicationController`
+
 `  layout :current_layout`
+
 `  `
+
 `  private`
+
 `  `
+
 `  def current_layout`
+
 `    ['layoutA', 'layoutB', 'layoutC'].sample`
+
 `  end`
+
 `end`
+
 
 Layouts provide the common structure into which the different views are inserted. According to the basic mechanism, the layout will `yield` and the view will be inserted at this position. But notice that this can take arguments to insert parts of the view in special, say the head or a sidebar.
 
