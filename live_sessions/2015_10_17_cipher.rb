@@ -36,8 +36,8 @@ class Cipher
   end
 
   def format_check(key)
-    fail(ArgumentError, 'emtpy key') if key == ''
-    fail(ArgumentError, 'No numbers or uppercase letters') if key =~ /[A-Z0-9]/
+    fail(ArgumentError, 'empty key') if key == ''
+    fail(ArgumentError, 'lowercase letters only') if key =~ /[A-Z0-9]/
   end
 end
 
