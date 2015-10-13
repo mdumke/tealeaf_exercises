@@ -1,5 +1,3 @@
-require 'pry'
-
 class Cipher
   ASCII_OFFSET = 'a'.ord
 
@@ -12,47 +10,39 @@ class Cipher
   end
 
   def encode(plaintext)
-    plaintext.map { |char, index| encode_char(char, key_for(index)) }
+    plaintext.map { |char, idx| shift_char(char, distance(idx), &:+) }
   end
 
   def decode(ciphertext)
-    ciphertext.map { |char, index| decode_char(char, key_for(index)) }
+    ciphertext.map { |char, idx| shift_char(char, distance(idx), &:-) }
   end
 
   private
 
-  def encode_char(char, shift)
-    ((pos(char) + pos(shift)) % 26 + ASCII_OFFSET).chr
+  def shift_char(char, distance, &direction)
+    (direction.call(alphabet_index(char), distance) % 26 + ASCII_OFFSET).chr
   end
 
-  def decode_char(char, shift)
-    ((pos(char) - pos(shift)) % 26 + ASCII_OFFSET).chr
+  def distance(index)
+    alphabet_index(key[index % key.size])
+  end
+
+  def alphabet_index(character)
+    character.ord - ASCII_OFFSET
+  end
+
+  def random_key
+    100.times.collect { [*('a'..'z')].sample }.join
   end
 
   def format_check(key)
     fail(ArgumentError, 'emtpy key') if key == ''
-
-    msg = 'Key must be all lowercase letters'
-    fail(ArgumentError, msg) if key =~ /[A-Z0-9]/
-
-    true
-  end
-
-  def key_for(index)
-    key[index % key.size]
-  end
-
-  def random_key
-    100.times.map { rand('a'.ord..'z'.ord).chr }.join
-  end
-
-  def pos(character)
-    character.ord - ASCII_OFFSET
+    fail(ArgumentError, 'No numbers or uppercase letters') if key =~ /[A-Z0-9]/
   end
 end
 
 class String
-   def map(&block)
+  def map(&block)
     each_char
       .with_index
       .map { |char, index| block.call(char, index) }
