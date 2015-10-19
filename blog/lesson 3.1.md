@@ -15,11 +15,13 @@ A prototypical process for planning an application from idea to sofware might be
 
 When starting with a sliced version of a website, it is a good idea to make the static pages easily available in development. Hashrocket has introduced a helpful UI-controller / index view that automatically creates routes for every relevant view under app/views/ui. The controller just presents the index view and redirects unless the environment is development. The index view looks like this:
 
-    %ul
-      - Dir.glob('app/views/ui/*.html.haml').sort.each do |file|
-        - wireframe = File.basename(file, '.html.haml')
-        - unless wireframe == 'index' || wireframe.match(/^_/)
-          %li= link_to wireframe.titleize, action: wireframe unless wireframe == 'index'
+```ruby
+%ul
+  - Dir.glob('app/views/ui/*.html.haml').sort.each do |file|
+    - wireframe = File.basename(file, '.html.haml')
+    - unless wireframe == 'index' || wireframe.match(/^_/)
+      %li= link_to wireframe.titleize, action: wireframe unless wireframe == 'index'
+```
 
 There are a number of possible git-based workflows when working in teams, but a simple yet effective one seems to be the **github flow** (read about it at `http://scottchacon.com/2011/08/31/github-flow.html`). The main ideas are that everything on the master branch has to be deployable at any time and that work is done on extra branches, so pull requests can be used for discussion, code reviews and final merging. This way, a simple `git fetch` will also provide you with a quick overview over the things others have recently been working on.
 
