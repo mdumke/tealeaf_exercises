@@ -9,10 +9,12 @@ As page reloads become more expensive, exchanging only smaller parts of a websit
 
 On the server side, the request will be processed `as JS` and a Rails controller can distinguish it from other types accordingly using the respond_to helper as in
 
-    respond_to do |format|
-      format.html # default: try to render a .html(.erb) template
-      format.js   # default: try to render a .js(.erb) template
-    end
+```ruby
+respond_to do |format|
+  format.html # default: try to render a .html(.erb) template
+  format.js   # default: try to render a .js(.erb) template
+end
+```
 
 The .html and .js methods take an optional block where rendering can be specified, but in its absence Rails will try to render templates according to the standard naming conventions. Javascript templates will also be preprocessed by the erb (or haml) preprocessors if the filenames end in .erb (or .haml). This is particularly helpful as the templates now have access to instance variables or local variables passed in from the controller.
 
@@ -36,13 +38,15 @@ Managing roles and permissions can become very complicated, but especially clien
 
 A simpler approach to roles, and one that is typically sufficient for small and medium sized applications, is to have just one user model and add a role column to it specifying the user's role. Then on the model there can just be a number of instance methods like:
 
-    def admin?
-      role.to_sym == :admin
-    end
+```ruby
+def admin?
+  role.to_sym == :admin
+end
 
-    def moderator?
-      role.to_sym == :moderator
-    end
+def moderator?
+  role.to_sym == :moderator
+end
+```
 
 At the controller level it is now easy to check permissions for an action using methods like `require_admin` according to a standard check for logged-in users.
 
@@ -53,7 +57,9 @@ Rails and particularly ActiveSupport::TimeZone provide a number of convenient he
 
 In order to keep track of the time zone for a particular user, store it as a simple string in the database. Constructing an input field to help the user select from the available timezones is simple with a new form-helper method that comes with Rails 4:
 
-    f.time_zone_select(:time_zone, ActiveSupport::TimeZone.all, default: Time.zone.name)
+```ruby
+f.time_zone_select(:time_zone, ActiveSupport::TimeZone.all, default: Time.zone.name)
+```
 
 Note that `Time.zone` will refer to the default time zone set for the application whereas simply using `Time` will be the respective system time. For this reason, refrain from using `Time.now` but always use `Time.zone.now` or `Time.current` which is a short form for that.
 
@@ -68,11 +74,13 @@ First of all, let there be a few general words of caution. When integrating an e
 
 As far as Rails is concerned, building simple APIs is as easy as using the `respond_to` helper in the controller to return JSON, XML or any other requested format depending on the request type. This could be as simple as in this example:
 
-    respond_to do |format|
-      format.html
-      format.json { render json: @posts }
-      format.xml { render xml: @posts }
-    end
+```ruby
+respond_to do |format|
+  format.html
+  format.json { render json: @posts }
+  format.xml { render xml: @posts }
+end
+```
 
 But it can, of course, be much more complicated and include, for instance, rendering json-templates that exactly define which model-attributes or associated models to return.
 
@@ -89,65 +97,70 @@ A url-tool like cURL can really help with developing and exploring APIs. But thi
 
 DRYing up code is an essential part of refactoring. Sometimes it makes sense to extract common code to helper methods or to create superclasses, yet at other times extracting code to modules or gems may be the most commendable option. Finding a place for new modules within the Rails architecture can be a bit tricky. One option would be to have modules under the lib-directory, in which case we have to make sure that they are loaded when the app starts, so we want to extend the autoload paths in application.rb with
 
-`config.autoload_paths += %W(#{config.root}/lib)`.
+```ruby
+config.autoload_paths += %W(#{config.root}/lib)
+```
 
 Extracting instance methods is as simple as putting them inside a new module (remember that module names end in 'able' by convention) and including the module in the relevant classes. But modules can do more. They can define class methods and they can execute code once at the moment the module gets included. While this originally required some meta-programming, ActiveSupport::Concern abstracts this away. To give an example, we can extract the code necessary to establish a polymorphic association with a 'Vote'-class to a module:
 
-    module Voteable
-      extend ActiveSupport::Concern
+```ruby
+module Voteable
+  extend ActiveSupport::Concern
 
-      # this will be executed when the module gets included
-      included do
-        has_many :votes, as: :voteable
-      end
+  # this will be executed when the module gets included
+  included do
+    has_many :votes, as: :voteable
+  end
 
-      # this will be an instance method
-      def total_votes
-        up_votes - down_votes
-      end
+  # this will be an instance method
+  def total_votes
+    up_votes - down_votes
+  end
 
-      # the methods defined here will be class methods
-      module ClassMethods
-        def my_class_method
-        end
-      end
+  # the methods defined here will be class methods
+  module ClassMethods
+    def my_class_method
     end
-
+  end
+end
+```
 
 The block passed to 'included' will call the classes' `has_many`-method once when the module is included to establish the association with the vote.
 
 Including the Voteable-module will add the specified behavior, but this is fixed in advanced an cannot be customized by the model including the module. Yet there are circumstances where we'd like to pass in configurations to the module. In these cases, we need to add a bit of metaprogramming. A common pattern that is used extensively in Rails is to pass in variables to the class methods that are used by the module to set the values of class_attributes. To demonstrate this pattern, in the following example I will add the ability to walk to different models and specify the number of legs for each class:
 
-    module Walkable
-      extend ActiveSupport::Concern
+```ruby
+module Walkable
+  extend ActiveSupport::Concern
 
-      included do
-        # define the class attribute immediately
-        class_attribute :legs
-      end
+  included do
+    # define the class attribute immediately
+    class_attribute :legs
+  end
 
-      module ClassMethods
-        # this allows the class using the module to set the number of legs
-        def number_of_legs(legs)
-          self.legs = legs
-        end
-      end
-
-      # finally even instance methods can have access to the class attribute
-      def how_many_legs_do_you_have
-        puts "#{self.class.legs}"
-      end
+  module ClassMethods
+    # this allows the class using the module to set the number of legs
+    def number_of_legs(legs)
+      self.legs = legs
     end
+  end
 
-    class Cat
-      include Walkable
-      number_of_legs 4
-    end
+  # finally even instance methods can have access to the class attribute
+  def how_many_legs_do_you_have
+    puts "#{self.class.legs}"
+  end
+end
 
-    class Human
-      include Walkable
-      number_of_legs 2
-    end
+class Cat
+  include Walkable
+  number_of_legs 4
+end
+
+class Human
+  include Walkable
+  number_of_legs 2
+end
+```
 
 
 Notice how the module gives access to the class_attribute at the instance-level. In the context of Rails, we might use a pattern like this to extract slugging to a module and specify the column to base a slug in each class that includes the module.
@@ -170,22 +183,24 @@ In case the gem defines a file that needs to be explicitely included, that is be
 
 Some applications add addidtional layer of security by having a user type in a pin that gets send to their telephone before login is complete. This means that in order to use 2-factor-authentication, we need to add a phone (string) and a pin field to the user-data. When login is successful, a random (but unique) pin gets generated and sent via Twilio (easy to use API but, of course, costs something). The user is then redirected to a page where they can enter their pin. This page should not be accessible for users that are not in 'limbo'. After successfully entering the number, the user gets logged in and the pin is deleted. An appropriate method on the sessions controller to take care of that may look like this:
 
-    def pin
-      access_denied if session[:two_factor].nil?
+```ruby
+def pin
+  access_denied if session[:two_factor].nil?
 
-      if request.post? # GET will just render the template
-        user = User.find_by_pin(params[:pin])
+  if request.post? # GET will just render the template
+    user = User.find_by_pin(params[:pin])
 
-        if user
-          user.remove_pin!
-          session[:two_factor] = nil
-          login_user!(user)
-        else
-          flash['error'] = 'Something is wrong with your pin'
-          redirect_to pin_path
-        end
-      end
+    if user
+      user.remove_pin!
+      session[:two_factor] = nil
+      login_user!(user)
+    else
+      flash['error'] = 'Something is wrong with your pin'
+      redirect_to pin_path
     end
+  end
+end
+```
 
 
 ## Fun Facts and Best Practices

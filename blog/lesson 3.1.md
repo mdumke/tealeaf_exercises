@@ -39,30 +39,34 @@ There are different appraoches as to when to write tests ranging all the way to 
 
 RSpec is intended to be used as a tool that supplements a Behavior Driven Design process. For this reason, what you formulate with RSpec are not just tests, but *specs* (hence the name). Running `rspec` will search through the spec-directory, look for files that end in '_spec.rb' and run them. Here's what a basic specfile could look like:
 
-    # make sure the Rails environment and the relevant class are loaded
-    require 'spec_helper'
+```ruby
+# make sure the Rails environment and the relevant class are loaded
+require 'spec_helper'
 
-    describe Todo do
-      it 'saves itself' do
-        # 1. setup step
-        todo = Todo.new(name: 'cook dinner')
+describe Todo do
+  it 'saves itself' do
+    # 1. setup step
+    todo = Todo.new(name: 'cook dinner')
 
-        # 2. perform some action
-        todo.save
+    # 2. perform some action
+    todo.save
 
-        # 3. verify the result is as expected
-        Todo.first.name.should == 'cook dinner'
-      end
-    end
+    # 3. verify the result is as expected
+    Todo.first.name.should == 'cook dinner'
+  end
+end
+```
 
 This code exemplifies a prototypical approach for writing tests in multiple steps: first a setup, the some action we would like to perform, then check whether the results meet our expectations, and finally some cleanup (not necessary in this case). Now this particular spec is not recommended because it tests Rails and ActiveRecord, which is not really necessary. Only test the code you own.
 
 Tests that are basic but still considered relevant might be validation-tests and associations-tests for models. Because they are basic, there is a nice tool that can save some typing and help with edge-cases, a gem called *shoulda-matchers*. With soulda-matchers, we can write those test as, e.g.
 
-    it { should validate_presence_of(:email) }
-    it { should validate_uniqueness_of(:email) }
-    it { should belong_to(:user) }
-    it { should have_many(:videos) }
+```ruby
+it { should validate_presence_of(:email) }
+it { should validate_uniqueness_of(:email) }
+it { should belong_to(:user) }
+it { should have_many(:videos) }
+```
 
 When writing tests, considers using a technique called *triangulation*. This means to start off by writing the simplest code possible to make the first test pass (even if the code is entirely trivial) and extend it only when another test makes this necessary.
 
@@ -71,29 +75,33 @@ When writing tests, considers using a technique called *triangulation*. This mea
 
 Sometimes, especially when dealing with a form-heavy application, it can be convenient to customize the rails form helpers, e.g. in order to render error messages automatically or display error with each label field. For instance, we could write a new form builder in `app/helpers/my_form_builder.rb` that extends the label-method:
 
-    class MyFormBuilder < ActionView::Helpers::FormBuilder
-      def label(method, text = nil, options = {}, &block)
-        errors = object.errors[method.to_sym]
+```ruby
+class MyFormBuilder < ActionView::Helpers::FormBuilder
+  def label(method, text = nil, options = {}, &block)
+    errors = object.errors[method.to_sym]
 
-        if errors
-          text += " <span class=\"error\">#{ errors.first }</span>
-        end
-
-        super(method, text.html_safe, options, &block)
-      end
+    if errors
+      text += " <span class=\"error\">#{ errors.first }</span>
     end
+
+    super(method, text.html_safe, options, &block)
+  end
+end
+```
 
 This just adds an error-span for every input that has an associated error. To use the new builder, the form_for helper takes an additional options-argument: `form_for @post, builder: MyFormBuilder do |f| ... end`. Now instead of having to add this to every form it is much more convenient to write a new form-helper function in the application_helper.rb like, e.g.
 
-    module ApplicationHelper
-      def my_form_for(record, options = {}, &proc)
-        form_for(
-          record,
-          options.merge!({builder: MyFormBuilder}),
-          &proc
-        )
-      end
-    end
+```ruby
+module ApplicationHelper
+  def my_form_for(record, options = {}, &proc)
+    form_for(
+      record,
+      options.merge!({builder: MyFormBuilder}),
+      &proc
+    )
+  end
+end
+```
 
 Apart from writing custom form buiders for specialized needs there are also a number of libraries available, some bringing a rather heavy-weight DSL (like *formtastic* and *simple_form*) and others just providing some boilerplate code but staying closer to the rails helper syntax (like *bootstrap_form*).
 
