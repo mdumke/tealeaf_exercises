@@ -1,48 +1,66 @@
 class Robot
   DIRECTIONS = [:north, :east, :south, :west]
 
-  attr_accessor :bearing, :coordinates
+  MOVE_FORWARD = {
+    east:  -> (robot) { robot.x += 1},
+    west:  -> (robot) { robot.x -= 1},
+    north: -> (robot) { robot.y += 1}, 
+    south: -> (robot) { robot.y -= 1}
+  }
+
+  attr_accessor :x, :y, :bearing
 
   def orient(direction)
-    fail(ArgumentError, "invalid direction #{ direction }") unless DIRECTIONS.include? direction
+    input_check(direction)
+
     self.bearing = direction  
   end 
 
+  def coordinates
+    [x, y]
+  end
+
   def at(x, y)
-    self.coordinates = [x, y]
+    self.x = x
+    self.y = y
   end
   
   def advance
-    case bearing
-    when :north
-      self.coordinates = [coordinates[0], coordinates[1] + 1]
-    when :east
-      self.coordinates = [coordinates[0] + 1, coordinates[1]]
-    when :south
-      self.coordinates = [coordinates[0], coordinates[1] - 1]
-    else
-      self.coordinates = [coordinates[0] - 1, coordinates[1]]
-    end
+    MOVE_FORWARD[bearing].call(self)
   end
 
   def turn_right
-    self.bearing = DIRECTIONS[(DIRECTIONS.index(bearing) + 1) % DIRECTIONS.length]
+    turn(&:+)
   end
 
   def turn_left
-    self.bearing = DIRECTIONS[(DIRECTIONS.index(bearing) - 1) % DIRECTIONS.length]
+    turn(&:-)
+  end
+
+  private
+
+  def turn(&direction)
+    index = direction.call(DIRECTIONS.index(bearing), 1)
+
+    self.bearing = DIRECTIONS[index % DIRECTIONS.length]
+  end
+
+  def input_check(direction)
+    unless DIRECTIONS.include? direction
+      fail(ArgumentError, "invalid direction #{ direction }")
+    end
   end
 end
 
 class Simulator
-  COMMANDS = {
+  INSTRUCTIONS = {
     L: :turn_left,
     R: :turn_right,
     A: :advance
   }
 
-  def instructions(str)
-    str.each_char.map { |c| COMMANDS[c.to_sym] }
+  def instructions(commands)
+    commands.each_char.map { |c| INSTRUCTIONS[c.to_sym] }
   end
 
   def place(robot, options)
