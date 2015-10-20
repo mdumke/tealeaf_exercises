@@ -37,7 +37,15 @@ From the vim-tutorial book
 - `CTRL-u` and `CTRL-d` scroll half a page up and down, respectively
 - `d<motion>` deleted everything the motion specifies, left or right or multiple lines or a word, as with `dw` 
 - `D` is a shortcut for deleting to the end of a line
-
+- `c<motion>` is similar to `d` but leaves you in insertion mode
+- `cc` deletes the line and puts you into insertion mode 
+- `.` repeats the last deletion or insertion commands
+- `J` joint the next line into the current one, `3J` will join three lines
+- `r<character>` replaces the current charater with the new one
+- `~` toggles the current character's case
+- `q<char>` starts recording a macro into the given char
+- `@<char>` replays the makro recorded into the given char
+- `:digraphs` shows a list of digraphs, which are entered via `CTRL-K` and then a sequence like, e.g. `cO` to write `©`
 
 ## Other stuff
 
