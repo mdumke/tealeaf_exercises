@@ -2,10 +2,10 @@ class Robot
   DIRECTIONS = [:north, :east, :south, :west]
 
   MOVE_FORWARD = {
-    east:  -> (robot) { robot.x += 1},
-    west:  -> (robot) { robot.x -= 1},
-    north: -> (robot) { robot.y += 1},
-    south: -> (robot) { robot.y -= 1}
+    east:  -> (robot) { robot.x += 1 },
+    west:  -> (robot) { robot.x -= 1 },
+    north: -> (robot) { robot.y += 1 },
+    south: -> (robot) { robot.y -= 1 }
   }
 
   attr_accessor :x, :y, :dir_index
@@ -48,9 +48,8 @@ class Robot
   end
 
   def validate_input(direction)
-    unless DIRECTIONS.include? direction
-      fail(ArgumentError, "invalid direction #{ direction }")
-    end
+    return if DIRECTIONS.include? direction
+    fail(ArgumentError, "invalid direction #{direction}")
   end
 end
 
@@ -74,4 +73,3 @@ class Simulator
     instructions(commands).each { |instruction| robot.send(instruction) }
   end
 end
-
