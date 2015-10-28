@@ -1,5 +1,5 @@
 require 'minitest/autorun'
-require_relative 'simulator'
+require_relative '2015_10_24_simulator'
 
 class RobotTurningTest < MiniTest::Unit::TestCase
   attr_reader :robot
