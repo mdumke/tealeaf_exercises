@@ -63,20 +63,20 @@ class MinesweeperTest < Minitest::Test
 
   def test_different_len
     inp = ['+-+', '| |', '|*  |', '|  |', '+-+']
-    assert_raises(ArgumentError) do
+    assert_raises(ValueError) do
       Board.transform(inp)
     end
   end
 
   def test_faulty_border
     inp = ['+-----+', '*   * |', '+-- --+']
-    assert_raises(ArgumentError) do
+    assert_raises(ValueError) do
       Board.transform(inp)
     end
   end
   def test_invalid_char
     inp = ['+-----+', '|X  * |', '+-----+']
-    assert_raises(ArgumentError) do
+    assert_raises(ValueError) do
       Board.transform(inp)
     end
   end

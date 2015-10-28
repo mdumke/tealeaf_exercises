@@ -1,41 +1,48 @@
+ValueError = Class.new(StandardError)
+
 class Board
-  # adds adjacent-mines-counters to empty fields
+  # replaces empty fields on the board with the number of adjacent mines
   def self.transform(input)
-    Board.new.transform(input)
+    self.new.transform(input)
   end
 
   def transform(input)
-    validate(input)
-    @matrix = strip_borders(input)
+    @matrix = parse(validate(input))
 
     each_matrix_position do |x, y, value|
       @matrix[x][y] = count_adjacent_mines(x, y) unless value == '*'
     end
 
-    print_view
+    pretty_format_matrix
   end
 
   private
 
+  # returns the number of @matrix-fields next to [x, y] with '*'
   def count_adjacent_mines(x, y)
     adjacent_positions(x, y)
       .map { |x, y| @matrix[x][y] }
       .count('*')
   end
 
+  # returns an array of [X, Y] positions, the @matrix-fields next to x and y
   def adjacent_positions(x, y)
-    offsets = [-1, 0, 1].repeated_permutation(2).to_a
-    offsets.delete([0, 0])
+    # find positions of neighbors relative to the current position
+    neighbors = [-1, 0, 1].repeated_permutation(2).to_a
+    neighbors.delete([0, 0])
 
-    offsets
-      .map { |off_x, off_y| [x + off_x, y + off_y] }
+    # compute absolute positions of neighbors in @matrix
+    neighbors
+      .map { |offset_x, offset_y| [x + offset_x, y + offset_y] }
       .reject { |x, y| out_of_range(x, y) }
   end
 
+  # returns true if (X, Y) is NOT a valid index of @matrix
   def out_of_range(x, y)
     x < 0 || y < 0 || x >= @matrix.size || y >= @matrix.first.size
   end
 
+  # takes a block any yields every value in @matrix with its x and y index
   def each_matrix_position
     @matrix.each_with_index do |row, i|
       row.each_with_index do |value, j|
@@ -44,25 +51,32 @@ class Board
     end
   end
 
-  def strip_borders(input)
+  # strips away borders and returns a 2-dim array of chars
+  def parse(input)
     input
       .map { |str| str.gsub(/\+|-|\|/, '') }
       .reject(&:empty?)
       .map(&:chars)
   end
 
-  def print_view
-    border = '+' + ('-' * @matrix.first.size) + '+'
-    rows = @matrix.map { |row| ('|' + row.join + '|').gsub(/0/, ' ') }
+  # ensures each row has the same length and adheres to the specified format
+  def validate(input)
+    valid_lengths = input.all? { |str| str.length == input.first.length }
+    valid_content = input.all? { |str| str.match(/(^\+-+\+$)|(^\|[ \*]+\|$)/) }
 
-    [border, rows, border].flatten
+    fail(ValueError) unless valid_lengths && valid_content
+
+    input
   end
 
-  def validate(input)
-    same_length = input.all? { |str| str.length == input.first.length }
-    valid_strings = input.all? { |str| str.match(/(^\+-+\+$)|(^\|[ \*]+\|$)/) }
+  # returns an array of strings, each one a board-row, wrapped in borders
+  def pretty_format_matrix
+    border = '+' + ('-' * @matrix.first.size) + '+'
+    rows = @matrix
+      .map { |row| '|' + row.join + '|' }
+      .map { |row| row.gsub(/0/, ' ') }
 
-    fail(ArgumentError) unless same_length && valid_strings
+    [border, rows, border].flatten
   end
 end
 
