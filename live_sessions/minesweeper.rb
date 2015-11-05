@@ -2,49 +2,49 @@ ValueError = Class.new(StandardError)
 
 class Board
   # replaces empty fields on the board with the number of adjacent mines
-  def self.transform(input)
-    self.new.transform(input)
+  def self.transform(board)
+    self.new.transform(board)
   end
 
-  def transform(input)
-    @matrix = parse(validate(input))
+  def transform(board)
+    @board = parse(validate(board))
 
-    each_matrix_position do |x, y, value|
-      @matrix[x][y] = count_adjacent_mines(x, y) unless value == '*'
+    each_board_position do |x, y, value|
+      @board[x][y] = count_adjacent_mines(x, y) unless value == '*'
     end
 
-    pretty_format_matrix
+    pretty_format_board
   end
 
   private
 
-  # returns the number of @matrix-fields next to [x, y] with '*'
+  # returns the number of @board-fields next to [x, y] with '*'
   def count_adjacent_mines(x, y)
     adjacent_positions(x, y)
-      .map { |x, y| @matrix[x][y] }
+      .map { |i, j| @board[i][j] }
       .count('*')
   end
 
-  # returns an array of [X, Y] positions, the @matrix-fields next to x and y
+  # returns an array of [X, Y] positions, the @board-fields next to x and y
   def adjacent_positions(x, y)
-    # find positions of neighbors relative to the current position
+    # list positions of neighbors relative to the current position
     neighbors = [-1, 0, 1].repeated_permutation(2).to_a
     neighbors.delete([0, 0])
 
-    # compute absolute positions of neighbors in @matrix
+    # compute absolute positions of neighbors on @board
     neighbors
       .map { |offset_x, offset_y| [x + offset_x, y + offset_y] }
-      .reject { |x, y| out_of_range(x, y) }
+      .reject { |i, j| out_of_range(i, j) }
   end
 
-  # returns true if (X, Y) is NOT a valid index of @matrix
+  # returns true if (X, Y) is NOT a valid index of @board
   def out_of_range(x, y)
-    x < 0 || y < 0 || x >= @matrix.size || y >= @matrix.first.size
+    x < 0 || y < 0 || x >= @board.size || y >= @board.first.size
   end
 
-  # takes a block any yields every value in @matrix with its x and y index
-  def each_matrix_position
-    @matrix.each_with_index do |row, i|
+  # yields every value on @board together with its x and y index
+  def each_board_position
+    @board.each_with_index do |row, i|
       row.each_with_index do |value, j|
         yield [i, j, value]
       end
@@ -70,13 +70,12 @@ class Board
   end
 
   # returns an array of strings, each one a board-row, wrapped in borders
-  def pretty_format_matrix
-    border = '+' + ('-' * @matrix.first.size) + '+'
-    rows = @matrix
-      .map { |row| '|' + row.join + '|' }
-      .map { |row| row.gsub(/0/, ' ') }
+  def pretty_format_board
+    border = '+' + ('-' * @board.first.size) + '+'
+    rows = @board
+           .map { |row| '|' + row.join + '|' }
+           .map { |row| row.gsub(/0/, ' ') }
 
     [border, rows, border].flatten
   end
 end
-
