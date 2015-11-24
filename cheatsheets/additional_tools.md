@@ -49,22 +49,24 @@ tealeaf academy
   - to select multiple subclasses, use the comma like so: `$('#tour .on_sale, .asia')`
   - there is a `:first` pseudoselector for selecting only the first element in a list: `$('#laundry-list li:first')`
   - jQuery also has an `:even` pseudoselector to select every other element: `$('#laundry-list > li:even')`
-  - *traversing the DOM* means finding elements not with desendant selectors but with helper methods, so instead of `$('#items li')` we cound say `$('#items').find('li')`
+  - *traversing the DOM* means finding elements not with descendant selectors but with helper methods, so instead of `$('#items li')` we cound say `$('#items').find('li')`
   - similarly, there are `.first()` and `.last()` methods for selecting elements
   - traversing the DOM is usually a bit faster than using descendant selectors
   - walking the DOM is possible with method chaining like `$('#items').first().next()`
   - traversing up can be accomplished via `$('#items').first().parent()`
   - traversing down is possible with `$('#element').children('li')` which corresponds to `$('#element > li')`
   - select elements within a list of elements that fulfill a certain condition with `$('#some_id').filter('.some_class');`
+  - to find out how many elements of a certain type are on the page, call `.length` on the selector, e.g. `$('li').length`
 
 - changing the html-content
   - retrieve content via, e.g. `$('h1').text();` and modify it with `$('h1').text('an even more important headline');`
   - be careful that js-events which change the page do not fire until the page is loaded
   - to create a new DOM node, send the html into the jQuery function, e.g. `var new_element = $('<p>Some new content</p>');`
   - to add new nodes to the DOM, there are a number of methods available: `.before`, `.after` (work at the sibling-level) and `.prepend()` and `.append()` (work at the child-level)
-  - remove an element by selecting it an calling `.remove()` on it
+  - remove an element by selecting it and calling `.remove()` on it
   - `appendTo(<element>)`, `prependTo(<element>)`, `.insertAfter(<element>)` and `.insertBefore(<element>)` have the same effect as the ones described above but the order of declaration is reversed
   - it is easy to add and remove classes to elements using `$('#element').addClass('my-class');` (`.removeClass(<name>);`)
+
 
 - listening to events and reacting accordingly
   - we can listen to document-events with e.g. `jQuery(document).ready(function () { ... });`
@@ -75,11 +77,9 @@ tealeaf academy
   - `$(this).parent('.some_class')` will find *all* the ancestors with the given class, while `closest` will find only one (or none)
   - when we need more information about elements in interaction, we can add `data-attributes` and refer to them with jQuery using `$('element').data(<name>)` (or set the data via `data(<name>, <value>)`
   - we can specify on which elements *inside* other elements we want to listen for events like `$('.some_class').on('click', 'button', <callback>);` ('event delegation')
-
-
-
-
+  - there are a number of mouse events we could listen to: `click`, `dbclick`, `focusin`, `focusout`, `mousedown`, `mouseup`, `mousemove`, `mouseout`, `mouseover`, `mouseleave`, `mouseenter`
 
 - animating content on a page and talking over the network to get new content
+  - to display an element with a slide animation, find the element and use `.slideDown()`, `.slideUp()` or `.slideToggle()` on this element
 
 

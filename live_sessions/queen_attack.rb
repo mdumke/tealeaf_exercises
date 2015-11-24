@@ -24,15 +24,14 @@ class Queens
   private
 
   def row_attack?
-    white[0] == black[0]
+    white[1] == black[1]
   end
 
   def column_attack?
-    white[1] == black[1]
+    white[0] == black[0]
   end
 
   def diagonal_attack?
     (white[0] - black[0]).abs == (white[1] - black[1]).abs
   end
 end
-

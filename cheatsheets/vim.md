@@ -1,5 +1,36 @@
 # vim cheatsheet
 
+## Practical Vim
+
+### preface
+
+- `:h` will get you the manual
+- vim can be compiled with different numbers of features. On a modern computer, user them all and compile using `--with-features=huge`
+- see enabled features via `:h +feature-list`
+
+### chapter 1: The vim way
+
+- `.` repeats the last changes - this sounds simple but is incredibly versatile
+- `>G` increases the indentation of the whole file, starting at the current line
+- vim has a number of shortcuts that condense multiple instructions into one keystroke like `C`, `s`, `S`, `I`, `A`, `o`, and `O` - these examples also switch to insertion mode and can hence be used together with the `.`
+- `;` repeats the last search that `f{char}` performed
+- `,` reverses the find-command in the opposite direction
+- replace all occurences in one file via `:%s/target/substitute/g`
+
+
+## Part I: Modes
+
+### chapter 2: Normal Mode
+
+
+
+
+
+
+
+
+
+
 From the vim-tutorial book
 
 ## Basic Editing
@@ -35,10 +66,10 @@ From the vim-tutorial book
 - use `:set number` and `:set nonumber` to switch between displaying line number
 - `CTRL-g, CTRL-g` (twice) can give a status line for where you are in a file
 - `CTRL-u` and `CTRL-d` scroll half a page up and down, respectively
-- `d<motion>` deleted everything the motion specifies, left or right or multiple lines or a word, as with `dw` 
+- `d<motion>` deleted everything the motion specifies, left or right or multiple lines or a word, as with `dw`
 - `D` is a shortcut for deleting to the end of a line
 - `c<motion>` is similar to `d` but leaves you in insertion mode
-- `cc` deletes the line and puts you into insertion mode 
+- `cc` deletes the line and puts you into insertion mode
 - `.` repeats the last deletion or insertion commands
 - `J` joint the next line into the current one, `3J` will join three lines
 - `r<character>` replaces the current charater with the new one
@@ -50,3 +81,4 @@ From the vim-tutorial book
 ## Other stuff
 
 - to set the syntax highlighting for, e.g. markdown, use `:set syntax=markdown`
+- for a fuzzy search through files, install `CtrlP` and setup the relevant mappings; invoke with `Ctrl p` (surprise!) and navigate the results list with `Ctrl j` and `Ctrl k`, it is also possible to use ag instead of grep for searching:
